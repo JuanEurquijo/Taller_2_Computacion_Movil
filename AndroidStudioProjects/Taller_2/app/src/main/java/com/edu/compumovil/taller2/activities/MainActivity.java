@@ -15,8 +15,7 @@ public class MainActivity extends BasicActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
         binding.imageButtonCamera.setOnClickListener(v -> startActivity(new Intent(this, CameraActivity.class)));
-
+        binding.imageButtonContacts.setOnClickListener(v -> startActivity(new Intent(this, ContactsActivity.class)));
     }
 }
