@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Taller 2</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="snackBar_dismiss_label">cerrar</string>
+    <string name="fix_position_label">Mover el mapa con la posición del usuario?</string>
+    <string name="direction_field_label">Dirección</string>
+    <string name="search_button_label">Buscar</string>
+    <string name="start_camera_label">Camara</string>
+    <string name="start_gallery_label">Seleccionar imagen</string>
+    <string name="permission_denied_label">No pude obtener el permiso necesario</string>
+    <string name="capture_saved">Imagen guardada correctamente.</string>
+</resources>
