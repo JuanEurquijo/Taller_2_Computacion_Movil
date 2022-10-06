@@ -20,7 +20,7 @@
         <entry key="app/src/main/res/layout/activity_camera.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/activity_contacts.xml" value="0.18177083333333333" />
         <entry key="app/src/main/res/layout/activity_map.xml" value="0.35625" />
-        <entry key="app/src/main/res/layout/contacts_adapter.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/contacts_adapter.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.33" />
       </map>
     </option>

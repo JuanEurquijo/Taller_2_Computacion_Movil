@@ -31,9 +31,14 @@ public class GeocoderService {
         return geocoder.getFromLocationName(name, MAX_RESULTS);
     }
 
-    public List<Address> finPlacesByNameInRadius(String name, LatLng centerPosition) throws IOException {
+    public List<Address> findPlacesByNameInRadius(String name, LatLng centerPosition) throws IOException {
         LatLng upperLeftPosition = DistanceUtils.moveLatLngInKilometer(-DISTANCE_RADIUS_KM, -DISTANCE_RADIUS_KM, centerPosition);
         LatLng bottomRightPosition = DistanceUtils.moveLatLngInKilometer(DISTANCE_RADIUS_KM, DISTANCE_RADIUS_KM, centerPosition);
         return geocoder.getFromLocationName(name, MAX_RESULTS, upperLeftPosition.latitude, upperLeftPosition.longitude, bottomRightPosition.latitude, bottomRightPosition.longitude);
+    }
+
+    public List<Address> findPosition(LatLng centerPosition) throws IOException {
+        return geocoder.getFromLocation(centerPosition.latitude, centerPosition.longitude, MAX_RESULTS);
+
     }
 }

@@ -15,10 +15,12 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 
 import com.edu.compumovil.taller2.App;
 import com.edu.compumovil.taller2.R;
@@ -62,6 +64,8 @@ public class MapFragment extends Fragment {
     static final int INITIAL_ZOOM_LEVEL = 18;
     private final LatLng CENTRAL_PARK = new LatLng(40.7812, -73.9665);
     Marker userPosition;
+    Marker search;
+    Marker clickUser;
     Polyline userRoute;
     List<Marker> places = new ArrayList<>();
 
@@ -84,7 +88,6 @@ public class MapFragment extends Fragment {
             //Setup the user marker with a default position
             userPosition = googleMap.addMarker(new MarkerOptions()
                     .position(CENTRAL_PARK)
-                    .icon(BitmapUtils.getBitmapDescriptor(getContext(), R.drawable.ic_baseline_circle_24))
                     .anchor(0.5f, 0.5f)
                     .zIndex(1.0f));
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(CENTRAL_PARK));
@@ -95,7 +98,7 @@ public class MapFragment extends Fragment {
                     .geodesic(true)
                     .zIndex(0.5f));
             //Setup the rest of the markers based in a json file
-            loadGeoInfo();
+            //loadGeoInfo();
         }
     };
 
@@ -122,7 +125,7 @@ public class MapFragment extends Fragment {
         lightSensorEventListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(@NotNull SensorEvent sensorEvent) {
-                if (sensorEvent.values[0] > 1500) {
+                if (sensorEvent.values[0] > 2000) {
                     userRoute.setColor(R.color.light_blue_400);
                     googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.map_day_style));
                 } else {
@@ -137,10 +140,16 @@ public class MapFragment extends Fragment {
             }
         };
 
-        binding.materialButton.setOnClickListener(view1 -> findPlaces());
+        binding.materialButton.setOnClickListener(view1 -> {
+            findPlaces();
+            InputMethodManager imn = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imn.hideSoftInputFromWindow(this.getView().getWindowToken(), 0);
+        });
         binding.textInputLayout.getEditText().setOnEditorActionListener((textView, i, keyEvent) -> {
             if(i == EditorInfo.IME_ACTION_SEARCH){
                 findPlaces();
+                InputMethodManager imn = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imn.hideSoftInputFromWindow(this.getView().getWindowToken(), 0);
                 return true;
             }
             return false;
@@ -151,13 +160,15 @@ public class MapFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             places.forEach(marker -> marker.remove());
             places.clear();
+            userPosition.setVisible(false);
             try {
-                geocoderService.finPlacesByNameInRadius(binding.textInputLayout.getEditText().getText().toString(), userPosition.getPosition()).forEach(address -> {
-                    Marker tmp = googleMap.addMarker(new MarkerOptions()
+                geocoderService.findPlacesByName(binding.textInputLayout.getEditText().getText().toString()).forEach(address -> {
+                    search = googleMap.addMarker(new MarkerOptions()
                             .title(address.getFeatureName())
                             .snippet(address.getAddressLine(0))
                             .position(new LatLng(address.getLatitude(), address.getLongitude())));
-                    places.add(tmp);
+                    places.add(search);
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(search.getPosition(),15));
                 });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -184,10 +195,13 @@ public class MapFragment extends Fragment {
         List<LatLng> points = userRoute.getPoints();
         points.add(userPosition.getPosition());
         userRoute.setPoints(points);
-        binding.userLocation.setOnClickListener(v -> googleMap.animateCamera(CameraUpdateFactory.newLatLng(userPosition.getPosition())));
+        binding.userLocation.setOnClickListener(v -> {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLng(userPosition.getPosition()));
+        });
+
 
     }
-    private void loadGeoInfo() {
+   /*  private void loadGeoInfo() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             geoInfoFromJsonService.getGeoInfoList().forEach(geoInfo -> {
                 MarkerOptions newMarker = new MarkerOptions();
@@ -203,6 +217,18 @@ public class MapFragment extends Fragment {
                 googleMap.addMarker(newMarker);
             });
         }
-    }
+    }*/
+
+   /* private final GoogleMap.OnMapLongClickListener onMapLongClickListener = new GoogleMap.OnMapLongClickListener() {
+        @Override
+        public void onMapLongClick(@NonNull LatLng latLng) {
+            clickUser = googleMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title(latLng)
+                    .anchor(0.5f, 0.5f)
+                    .zIndex(1.0f));
+
+        }
+    };*/
 
 }
