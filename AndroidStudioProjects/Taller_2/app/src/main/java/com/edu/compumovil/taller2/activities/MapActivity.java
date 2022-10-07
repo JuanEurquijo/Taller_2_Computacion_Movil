@@ -11,6 +11,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.akexorcist.googledirection.constant.AvoidType;
+import com.edu.compumovil.taller2.BuildConfig;
 import com.edu.compumovil.taller2.R;
 import com.edu.compumovil.taller2.databinding.ActivityMapBinding;
 import com.edu.compumovil.taller2.services.GeocoderService;
@@ -39,6 +41,8 @@ import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.model.Step;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -62,9 +66,14 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
 
 
     private LatLng userLocation;
+    private LatLng userGoto;
+
     private Marker userMarker;
     private Marker pushMarker;
+
     List<Marker> places = new ArrayList<>();
+
+    Polyline currentRoute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +107,7 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
         // Attach all buttons
         binding.centerButton.setOnClickListener(e -> centerOnUser());
         binding.searchButton.setOnClickListener(e -> findPlaces());
+        binding.goButton.setOnClickListener(e -> paintRoute());
     }
 
     private void findPlaces() {
@@ -111,14 +121,14 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
             places.clear();
             try {
                 geocoderService.findPlacesByNameInRadius(Objects.requireNonNull(binding.textInputLayout.getEditText()).getText().toString(), userLocation).forEach(address -> {
-                    LatLng position = new LatLng(address.getLatitude(), address.getLongitude());
+                    userGoto = new LatLng(address.getLatitude(), address.getLongitude());
                     places.add(mGoogleMap.addMarker(new MarkerOptions()
                             .title(address.getFeatureName())
                             .snippet(address.getAddressLine(0))
-                            .position(position).icon(BitmapDescriptorFactory
+                            .position(userGoto).icon(BitmapDescriptorFactory
                                     .defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))));
 
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userGoto, 15));
                 });
             } catch (IOException e) {
                 e.printStackTrace();
@@ -128,6 +138,36 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
                 binding.goButton.setEnabled(true);
             }
         }
+    }
+
+    private void paintRoute() {
+        AlertsHelper.shortSimpleSnackbar(binding.getRoot().getRootView(), getResources().getString(R.string.wait));
+        GoogleDirection.withServerKey(BuildConfig.MAPS_API_KEY)
+                .from(userLocation).to(userGoto)
+                .execute(new DirectionCallback() {
+                    @Override
+                    public void onDirectionSuccess(@Nullable Direction direction) {
+                        if (direction != null && direction.isOK()) {
+                            if (currentRoute != null)
+                                currentRoute.remove();
+
+                            // Obtener y dibujar la dirección
+                            ArrayList<LatLng> directions = direction.getRouteList().get(0).getLegList().get(0).getDirectionPoint();
+                            currentRoute = mGoogleMap.addPolyline(DirectionConverter.createPolyline(
+                                    getApplicationContext(), directions, 4, Color.MAGENTA
+                            ));
+                            mGoogleMap.moveCamera(CameraUpdateFactory.zoomOut());
+
+                        } else {
+                            AlertsHelper.shortSimpleSnackbar(binding.getRoot().getRootView(), getResources().getString(R.string.is_not_ok));
+                        }
+                    }
+
+                    @Override
+                    public void onDirectionFailure(@NonNull Throwable t) {
+                        AlertsHelper.shortSimpleSnackbar(binding.getRoot().getRootView(), getResources().getString(R.string.does_not_exist));
+                    }
+                });
     }
 
     private void centerOnUser() {
@@ -208,6 +248,9 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
                     .icon(BitmapDescriptorFactory
                             .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
                     ));
+
+            binding.goButton.setEnabled(true);
+            userGoto = latLng;
         });
     }
 }

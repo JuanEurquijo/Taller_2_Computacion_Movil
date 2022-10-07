@@ -14,4 +14,6 @@
     <string name="search">Buscar</string>
     <string name="wait">"Espere a que se actualize su ubicación"</string>
     <string name="go">Ir</string>
+    <string name="does_not_exist">La ruta especificada no pudo ser encontrada</string>
+    <string name="is_not_ok">La ruta especificada no puede ser dibujada</string>
 </resources>
