@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -30,10 +32,20 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.akexorcist.googledirection.DirectionCallback;
+import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.model.Direction;
+import com.akexorcist.googledirection.model.Leg;
+import com.akexorcist.googledirection.model.Route;
+import com.akexorcist.googledirection.model.Step;
+import com.akexorcist.googledirection.util.DirectionConverter;
+
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 import javax.inject.Inject;
 
@@ -48,9 +60,11 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
     private final int USER_ZOOM_LEVEL = 18;
     private boolean locationIsReady = false;
 
+
     private LatLng userLocation;
     private Marker userMarker;
     private Marker pushMarker;
+    List<Marker> places = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +87,47 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
                 super.onLocationResult(locationResult);
                 setUserLocation(locationResult);
 
-                if (!locationIsReady) centerOnUser();
-                locationIsReady = true;
+                if (!locationIsReady) {
+                    locationIsReady = true;
+                    centerOnUser();
+                }
+
             }
         });
 
         // Attach all buttons
         binding.centerButton.setOnClickListener(e -> centerOnUser());
+        binding.searchButton.setOnClickListener(e -> findPlaces());
+    }
+
+    private void findPlaces() {
+        if (!locationIsReady) {
+            AlertsHelper.shortToast(this, getResources().getString(R.string.wait));
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            places.forEach(Marker::remove);
+            places.clear();
+            try {
+                geocoderService.findPlacesByNameInRadius(Objects.requireNonNull(binding.textInputLayout.getEditText()).getText().toString(), userLocation).forEach(address -> {
+                    LatLng position = new LatLng(address.getLatitude(), address.getLongitude());
+                    places.add(mGoogleMap.addMarker(new MarkerOptions()
+                            .title(address.getFeatureName())
+                            .snippet(address.getAddressLine(0))
+                            .position(position).icon(BitmapDescriptorFactory
+                                    .defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))));
+
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (!places.isEmpty()) {
+                binding.goButton.setEnabled(true);
+            }
+        }
     }
 
     private void centerOnUser() {
@@ -155,8 +203,11 @@ public class MapActivity extends BasicActivity implements OnMapReadyCallback {
 
             pushMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(latLng)
-                    .title(addressList.get(0)
-                            .getAddressLine(0)));
+                    .title(addressList.get(0).getFeatureName())
+                    .snippet(addressList.get(0).getAddressLine(0))
+                    .icon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                    ));
         });
     }
 }

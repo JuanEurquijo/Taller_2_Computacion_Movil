@@ -43,6 +43,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:20.0.0'
 
+    implementation 'com.akexorcist:google-direction-library:1.2.1'
+
     def lombokVer = "1.18.24"
     compileOnly "org.projectlombok:lombok:$lombokVer"
     annotationProcessor "org.projectlombok:lombok:$lombokVer"
