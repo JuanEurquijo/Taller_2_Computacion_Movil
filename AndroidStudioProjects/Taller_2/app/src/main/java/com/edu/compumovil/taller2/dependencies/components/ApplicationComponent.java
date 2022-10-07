@@ -16,6 +16,5 @@ import com.edu.compumovil.taller2.dependencies.modules.PermissionModule;
         GeoInfoModule.class, GeocoderModule.class, LocationModule.class})
 public interface ApplicationComponent {
     void inject(BasicActivity activity);
-
     void inject(MapFragment fragment);
 }

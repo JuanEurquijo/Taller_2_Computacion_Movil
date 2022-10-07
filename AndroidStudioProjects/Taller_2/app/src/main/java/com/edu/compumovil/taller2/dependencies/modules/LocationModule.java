@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 @Module
 @AllArgsConstructor
 public class LocationModule {
+
     private final Application application;
 
     @Provides

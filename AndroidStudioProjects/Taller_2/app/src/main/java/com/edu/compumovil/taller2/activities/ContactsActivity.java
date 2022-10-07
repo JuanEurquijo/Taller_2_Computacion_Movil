@@ -3,11 +3,13 @@ package com.edu.compumovil.taller2.activities;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.edu.compumovil.taller2.adapters.ContactsAdapter;
 import com.edu.compumovil.taller2.databinding.ActivityContactsBinding;
+import com.edu.compumovil.taller2.utils.AlertsHelper;
 import com.edu.compumovil.taller2.utils.PermissionHelper;
 
 public class ContactsActivity extends BasicActivity {
@@ -19,9 +21,12 @@ public class ContactsActivity extends BasicActivity {
         binding = ActivityContactsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        permissionHelper.getContactsPermission(this);
+        // Verificar que se tenga el permiso
         if (permissionHelper.isMContactsPermissionGranted()) {
             initListContacts();
+        } else {
+            // Obtener los permisos
+            permissionHelper.getContactsPermission(this);
         }
     }
 
@@ -39,9 +44,9 @@ public class ContactsActivity extends BasicActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == PermissionHelper.PERMISSIONS_REQUEST_READ_CONTACTS){
+        if (requestCode == PermissionHelper.PERMISSIONS_REQUEST_READ_CONTACTS) {
             permissionHelper.getContactsPermission(this);
-            if(permissionHelper.isMContactsPermissionGranted()){
+            if (permissionHelper.isMContactsPermissionGranted()) {
                 initListContacts();
             }
         }
