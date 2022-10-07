@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import javax.inject.Inject;
 
 import com.edu.compumovil.taller2.App;
+import com.edu.compumovil.taller2.services.GeocoderService;
 import com.edu.compumovil.taller2.services.LocationService;
 import com.edu.compumovil.taller2.utils.AlertsHelper;
 import com.edu.compumovil.taller2.utils.PermissionHelper;
@@ -21,6 +22,9 @@ public class BasicActivity extends AppCompatActivity {
 
     @Inject
     LocationService locationService;
+
+    @Inject
+    GeocoderService geocoderService;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

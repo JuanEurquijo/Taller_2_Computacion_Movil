@@ -9,4 +9,8 @@
     <string name="start_gallery_label">Seleccionar imagen</string>
     <string name="permission_denied_label">No pude obtener el permiso necesario</string>
     <string name="capture_saved">Imagen guardada correctamente.</string>
+    <string name="center">Centrar</string>
+    <string name="position">"Posición actual"</string>
+    <string name="search">Buscar</string>
+    <string name="wait">"Espere a que se actualize su ubicación"</string>
 </resources>

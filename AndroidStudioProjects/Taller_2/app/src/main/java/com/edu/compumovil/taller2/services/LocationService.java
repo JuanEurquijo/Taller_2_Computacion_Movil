@@ -30,6 +30,7 @@ public class LocationService {
     //Location variables
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
+
     @Setter
     LocationCallback locationCallback;
 
@@ -60,7 +61,7 @@ public class LocationService {
                 });
             }
         } else {
-            Log.e(TAG, "startLocation() returned: locationCallback is null, please define it first.");
+            Log.e(TAG, "LocationCallback is null, please define it first.");
         }
     }
 

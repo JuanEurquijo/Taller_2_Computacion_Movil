@@ -21,7 +21,7 @@ public class GeocoderModule {
     }
 
     @Provides
-    public GeocoderService provideGeoCoderService() {
+    public GeocoderService provideGeocoderService() {
         return new GeocoderService(application.getApplicationContext());
     }
 }

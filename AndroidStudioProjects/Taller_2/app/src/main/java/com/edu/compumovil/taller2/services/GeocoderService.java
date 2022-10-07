@@ -4,6 +4,7 @@ package com.edu.compumovil.taller2.services;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 

@@ -21,13 +21,7 @@ public class ContactsActivity extends BasicActivity {
         binding = ActivityContactsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Verificar que se tenga el permiso
-        if (permissionHelper.isMContactsPermissionGranted()) {
-            initListContacts();
-        } else {
-            // Obtener los permisos
-            permissionHelper.getContactsPermission(this);
-        }
+        permissionHelper.getContactsPermission(this);
     }
 
     private void initListContacts() {
@@ -44,10 +38,14 @@ public class ContactsActivity extends BasicActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode == PermissionHelper.PERMISSIONS_REQUEST_READ_CONTACTS) {
-            permissionHelper.getContactsPermission(this);
+            // Verificar que se tenga el permiso
             if (permissionHelper.isMContactsPermissionGranted()) {
                 initListContacts();
+            } else {
+                // Obtener los permisos
+                permissionHelper.getContactsPermission(this);
             }
         }
     }
